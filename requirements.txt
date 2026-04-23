@@ -1,0 +1,7 @@
+streamlit>=1.35.0
+openai>=1.30.0
+faiss-cpu>=1.8.0
+scikit-learn>=1.4.0
+pandas>=2.1.0
+numpy>=1.26.0
+python-dotenv>=1.0.0
