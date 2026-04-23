@@ -9,6 +9,16 @@ import sys
 import streamlit as st
 
 # ---------------------------------------------------------------------------
+# Path setup — must happen before local src imports
+# ---------------------------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(BASE_DIR, "src"))
+KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "data", "knowledge_base.csv")
+
+from retrieval import HybridRetriever  # noqa: E402 (path must be set first)
+from llm import generate_response       # noqa: E402
+
+# ---------------------------------------------------------------------------
 # Page configuration — must be the first Streamlit call
 # ---------------------------------------------------------------------------
 st.set_page_config(
@@ -17,16 +27,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
-# ---------------------------------------------------------------------------
-# Path setup
-# ---------------------------------------------------------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(BASE_DIR, "src"))
-KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "data", "knowledge_base.csv")
-
-from retrieval import HybridRetriever  # noqa: E402
-from llm import generate_response       # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Sample complaints for quick demos

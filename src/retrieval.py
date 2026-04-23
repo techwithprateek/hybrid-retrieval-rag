@@ -114,7 +114,7 @@ class HybridRetriever:
         # Normalise each score vector to [0, 1] to make them comparable
         def _minmax(arr: np.ndarray) -> np.ndarray:
             rng = arr.max() - arr.min()
-            return (arr - arr.min()) / rng if rng > 0 else arr
+            return (arr - arr.min()) / rng if rng > 0 else np.zeros_like(arr)
 
         hybrid = self.alpha * _minmax(semantic) + (1 - self.alpha) * _minmax(keyword)
 
