@@ -14,6 +14,7 @@ customer support complaints and recommends resolution steps using:
 ```
 hybrid-retrieval-rag/
 ├── app.py                    # Streamlit application (entry point)
+├── generate_kb.py            # Synthetic knowledge base generator (litellm)
 ├── requirements.txt          # Python dependencies
 ├── .env.example              # Example environment variable file
 ├── data/
@@ -139,6 +140,7 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 | FAISS | Vector index for semantic search |
 | scikit-learn | TF-IDF vectorizer |
 | OpenAI API | Embeddings (`text-embedding-3-small`) + LLM (`gpt-4o-mini`) |
+| litellm | Model-agnostic LLM client for knowledge base generation |
 | pandas / numpy | Data handling |
 
 ---
@@ -163,9 +165,65 @@ Each entry includes: `category`, `subcategory`, `journey_stage`, `issue_descript
 
 ---
 
+## 🤖 Generating Synthetic Knowledge Base Data
+
+`generate_kb.py` uses **litellm** to generate new knowledge base entries with any LLM — cloud or local.
+
+### Quick start
+
+```bash
+# Generate 10 entries (appended to the existing KB) using the default model
+python generate_kb.py --count 10
+
+# Generate entries for specific categories only
+python generate_kb.py --categories Payment Order --count 5
+
+# Write to a separate file instead of appending
+python generate_kb.py --count 10 --output data/synthetic_kb.csv
+
+# Dry-run — print entries to stdout without saving
+python generate_kb.py --count 3 --dry-run
+```
+
+### Switching models (via litellm)
+
+```bash
+# Anthropic Claude
+python generate_kb.py --model claude-3-haiku-20240307 --count 10
+
+# Local Ollama model
+python generate_kb.py --model ollama/mistral --api-base http://localhost:11434 --count 5
+
+# Google Gemini
+python generate_kb.py --model gemini/gemini-1.5-flash --count 10
+
+# Together AI
+python generate_kb.py --model together_ai/mistral-7b-instruct-v0.1 --count 10
+```
+
+litellm supports [100+ providers](https://docs.litellm.ai/docs/providers) — just pass the right model string.
+
+### All options
+
+```
+--count          Number of entries to generate (default: 10)
+--model          litellm model string (default: gpt-4o-mini)
+--api-base       API base URL for local models (e.g. Ollama)
+--categories     Limit to specific categories (space-separated)
+--kb-path        Path to existing knowledge base CSV
+--output         Output CSV path (defaults to appending to --kb-path)
+--batch-size     Entries per LLM call (default: 5)
+--temperature    Sampling temperature (default: 0.8)
+--max-retries    Retries per LLM call on failure (default: 3)
+--dry-run        Print to stdout, don't save
+--seed           Random seed for reproducible target selection
+```
+
+---
+
 ## 🔧 Extending the Project
 
-- **Add more knowledge base entries** — edit `data/knowledge_base.csv`
+- **Add more knowledge base entries** — run `generate_kb.py` or edit `data/knowledge_base.csv` directly
 - **Swap the LLM** — change `LLM_MODEL` in `src/llm.py`
 - **Change the embedding model** — change `EMBEDDING_MODEL` in `src/retrieval.py`
 - **Add reranking** — insert a cross-encoder reranker between retrieval and generation
