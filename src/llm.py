@@ -64,9 +64,18 @@ def generate_response(complaint: str, retrieved: pd.DataFrame) -> dict:
         summary, resolution_steps.
 
     Raises:
-        ValueError: If the LLM response cannot be parsed as valid JSON.
+        ValueError: If the OpenAI API key is not configured or if the LLM
+            response cannot be parsed as valid JSON.
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError(
+            "OPENAI_API_KEY is not set. Please configure the OpenAI API key "
+            "by setting the OPENAI_API_KEY environment variable before "
+            "calling generate_response."
+        )
+
+    client = OpenAI(api_key=api_key)
     context = build_context(retrieved)
 
     user_message = (
