@@ -96,6 +96,69 @@ def generate_response(complaint: str, retrieved: pd.DataFrame) -> dict:
 
     raw = response.choices[0].message.content.strip()
     try:
-        return json.loads(raw)
+        result = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise ValueError(f"LLM returned invalid JSON: {raw}") from exc
+
+    return _validate_and_coerce(result)
+
+
+_REQUIRED_STRING_KEYS = ("category", "subcategory", "journey_stage", "confidence", "summary")
+_VALID_CONFIDENCE = {"High", "Medium", "Low"}
+_VALID_JOURNEY_STAGES = {"Pre-Purchase", "Purchase", "Post-Purchase"}
+
+
+def _validate_and_coerce(result: dict) -> dict:
+    """
+    Validate and coerce the LLM output to the expected schema.
+
+    Ensures all required keys are present with non-empty string values,
+    normalises *confidence* and *journey_stage* to their canonical forms,
+    and guarantees *resolution_steps* is a list of non-empty strings.
+
+    Raises:
+        ValueError: If a required key is missing or *resolution_steps* cannot
+            be coerced into a non-empty list.
+    """
+    if not isinstance(result, dict):
+        raise ValueError(
+            f"LLM response must be a JSON object, got {type(result).__name__}."
+        )
+
+    # Validate required string fields
+    for key in _REQUIRED_STRING_KEYS:
+        if key not in result:
+            raise ValueError(
+                f"LLM response is missing required field '{key}'. "
+                f"Full response: {result}"
+            )
+        if not isinstance(result[key], str) or not result[key].strip():
+            raise ValueError(
+                f"LLM response field '{key}' must be a non-empty string. "
+                f"Got: {result[key]!r}"
+            )
+        result[key] = result[key].strip()
+
+    # Coerce resolution_steps to a list of non-empty strings
+    steps = result.get("resolution_steps")
+    if isinstance(steps, str):
+        # Some models return the steps as a single numbered string — split on newlines
+        coerced = [s.strip() for s in steps.splitlines() if s.strip()]
+        if not coerced:
+            # Fall back: treat the whole string as a single step
+            coerced = [steps.strip()]
+        result["resolution_steps"] = coerced
+    elif isinstance(steps, list):
+        coerced = [str(s).strip() for s in steps if str(s).strip()]
+        if not coerced:
+            raise ValueError(
+                "LLM response 'resolution_steps' list is empty or contains only blank entries."
+            )
+        result["resolution_steps"] = coerced
+    else:
+        raise ValueError(
+            f"LLM response 'resolution_steps' must be a list or string, "
+            f"got {type(steps).__name__!r}. Full response: {result}"
+        )
+
+    return result
