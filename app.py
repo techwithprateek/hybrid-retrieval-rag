@@ -99,14 +99,18 @@ st.markdown(
 with st.sidebar:
     st.header("⚙️ Configuration")
 
+    if "openai_api_key" not in st.session_state:
+        st.session_state["openai_api_key"] = ""
+
     api_key = st.text_input(
         "OpenAI API Key",
         type="password",
+        value=st.session_state["openai_api_key"],
         help="Enter your OpenAI API key. It is used only for this session.",
         placeholder="sk-...",
     )
-    if api_key:
-        os.environ["OPENAI_API_KEY"] = api_key
+    if api_key != st.session_state["openai_api_key"]:
+        st.session_state["openai_api_key"] = api_key
 
     st.divider()
 
