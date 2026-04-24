@@ -150,9 +150,8 @@ st.markdown(
 )
 
 # ---------------------------------------------------------------------------
-# Load retriever (cached so it only runs once per session)
+# Load retriever
 # ---------------------------------------------------------------------------
-@st.cache_resource(show_spinner="Building hybrid search index…")
 def load_retriever(kb_path: str, _alpha: float) -> HybridRetriever:
     return HybridRetriever(kb_path, alpha=_alpha)
 
