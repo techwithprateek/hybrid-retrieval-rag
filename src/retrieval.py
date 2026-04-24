@@ -31,7 +31,13 @@ class HybridRetriever:
                    Higher alpha means more weight on semantic similarity.
         """
         self.alpha = alpha
-        self.client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "OPENAI_API_KEY environment variable is not set. "
+                "Set it before creating HybridRetriever."
+            )
+        self.client = OpenAI(api_key=api_key)
 
         self.df = pd.read_csv(knowledge_base_path)
         self._build_search_text()
