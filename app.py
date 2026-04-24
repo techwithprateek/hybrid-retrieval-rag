@@ -7,18 +7,16 @@ combined with an LLM to generate structured resolutions.
 import os
 import sys
 import streamlit as st
-from dotenv import load_dotenv
+import streamlit as st
 
 # ---------------------------------------------------------------------------
-# Path setup — must happen before local src imports
+# Local paths
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
-sys.path.insert(0, os.path.join(BASE_DIR, "src"))
 KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "data", "knowledge_base.csv")
 
-from retrieval import HybridRetriever  # noqa: E402 (path must be set first)
-from llm import generate_response       # noqa: E402
+from src.retrieval import HybridRetriever
+from src.llm import generate_response
 
 # ---------------------------------------------------------------------------
 # Page configuration — must be the first Streamlit call
