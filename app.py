@@ -7,11 +7,13 @@ combined with an LLM to generate structured resolutions.
 import os
 import sys
 import streamlit as st
+from dotenv import load_dotenv
 
 # ---------------------------------------------------------------------------
 # Path setup — must happen before local src imports
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 sys.path.insert(0, os.path.join(BASE_DIR, "src"))
 KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "data", "knowledge_base.csv")
 
