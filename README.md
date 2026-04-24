@@ -147,7 +147,7 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ## 📚 Knowledge Base
 
-`data/knowledge_base.csv` contains **30 support ticket templates** across 8 categories:
+`data/knowledge_base.csv` contains **30 support ticket templates** across 9 categories:
 
 | Category | Examples |
 |---|---|

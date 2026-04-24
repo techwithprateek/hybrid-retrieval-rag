@@ -5,14 +5,14 @@ combined with an LLM to generate structured resolutions.
 """
 
 import os
-import sys
 import streamlit as st
-import streamlit as st
+from dotenv import load_dotenv
 
 # ---------------------------------------------------------------------------
-# Local paths
+# Local paths — load .env before any os.getenv / os.environ access
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 KNOWLEDGE_BASE_PATH = os.path.join(BASE_DIR, "data", "knowledge_base.csv")
 
 from src.retrieval import HybridRetriever
@@ -185,9 +185,12 @@ if classify_btn:
         st.warning("Please enter a complaint before classifying.")
         st.stop()
 
-    if not os.environ.get("OPENAI_API_KEY"):
+    # Resolve API key: sidebar session state takes priority, then environment.
+    api_key = st.session_state.get("openai_api_key") or os.environ.get("OPENAI_API_KEY", "")
+    if not api_key:
         st.error("Please enter your OpenAI API key in the sidebar to continue.")
         st.stop()
+    os.environ["OPENAI_API_KEY"] = api_key
 
     try:
         retriever = load_retriever(KNOWLEDGE_BASE_PATH, alpha)
